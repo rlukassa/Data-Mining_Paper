@@ -52,7 +52,7 @@ A step-by-step guide to setting up the development/analysis environment:
    ```
 3. Clone the repository and navigate to the project directory:
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/rlukassa/Data-Mining_Paper
    cd Data-Mining_Paper
    ```
 4. Open and run the notebook:
