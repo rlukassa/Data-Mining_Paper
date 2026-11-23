@@ -12,15 +12,15 @@
     T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
 \begin{document}
 
-\title{Association Mining of Cross-Conference Publication Patterns in DBLP Before and After the Rise of Large Language Models}
+\title{Association Mining of Cross-Conference Publication Patterns in DBLP: A Temporal Analysis (2015--2025)}
 
-\author{\IEEEauthorblockN{1\textsuperscript{st} Lukas Raja Agripa}
+\author{\IEEEauthorblockN{Lukas Raja Agripa}
 \IEEEauthorblockA{\textit{School of Electrical Engineering and Informatics} \\
 \textit{Institut Teknologi Bandung}\\
 Bandung, Indonesia \\
 lukasagripa27@gmail.com}
 \and
-\IEEEauthorblockN{2\textsuperscript{nd} Zahran Nizar Fadhlan}
+\IEEEauthorblockN{Zahran Nizar Fadhlan}
 \IEEEauthorblockA{\textit{Faculty of Mechanical and Aerospace Engineering} \\
 \textit{Institut Teknologi Bandung}\\
 Bandung, Indonesia \\
@@ -30,7 +30,7 @@ zahrannizarfadhlan@gmail.com}
 \maketitle
 
 \begin{abstract}
-The DBLP bibliography and the rapid growth of computer science conference publishing offer a rich view of research communities, yet the relations between conferences are rarely studied through the publication histories of authors. This paper mines association patterns among conferences using Apriori and FP-Growth on two transaction models, Author-Based and Author-Year-Based, with association rules at a minimum confidence of 50\% and a temporal comparison over four periods from 2015 to 2025. After preprocessing DBLP into 2,000,916 papers, 1,822,945 authors and 4,494 venues, NeurIPS is the most popular venue by both paper count and unique authors. The most frequent pair is ICML with NeurIPS, and the rule with the highest lift is ECCV, MM and NeurIPS implying AAAI, CVPR and ICCV, with a lift of 162. Both algorithms return identical itemsets, with FP-Growth faster at low support. Multi-venue patterns grow from 2 rules in 2015--2017 to 324 in 2024--2025, and the center of association moves from communications and robotics toward machine learning, language, and vision. The hypothesis that NLP and ML associations strengthen is only partly supported. These findings help map research communities in computer science.
+The DBLP bibliography provides a large-scale view of computer science (CS) publication activity and the venues shared by researchers. This paper mines cross-conference patterns using Apriori and FP-Growth on Author-Based (AB) and Author-Year-Based (AY) transactions, with association rules evaluated at 50\% minimum confidence and temporal analysis across four periods from 2015 to 2025. The cleaned corpus contains 2,000,916 papers, 1,822,945 authors, and 4,494 venues; the mining item universe retains 1,792 venues covering 91.5\% of papers (92.5\% of paper-author rows). NeurIPS ranks first by both paper count and unique authors, and ICML--NeurIPS is the most frequent venue pair. Both algorithms return identical frequent itemsets; FP-Growth is faster at 0.1\% support, whereas Apriori is faster at higher thresholds. The temporal analysis identifies substantial changes in the detected rule set: between 2021--2023 and 2024--2025, 19 rules persist, 305 newly qualify, and 7 are no longer detected at the selected thresholds. Representative later-period rules span artificial intelligence, machine learning, natural language processing, computer vision, and communications. These patterns describe changes in cross-venue publication behavior around the public introduction of ChatGPT, but do not establish that LLMs caused them.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -40,7 +40,7 @@ association rule mining, Apriori, bibliometrics, DBLP, frequent pattern mining, 
 \section{Introduction}
 In computer science (CS), conferences rather than journals are the primary venue for new results, and the DBLP bibliography \cite{dblp} indexes millions of such papers. The sheer volume makes it hard to see which conferences matter most to the community and which ones share the same researchers.
 
-Since 2022, large language models (LLMs) have changed the topics and communities of CS research. A natural question is whether this shift is visible in the co-publication behavior of authors across conferences, that is, whether authors who publish at one conference increasingly publish at another.
+The rapid development and public visibility of large language models (LLMs) provide a timely context for examining changes in CS publication activity. ChatGPT was publicly introduced on November 30, 2022 \cite{chatgpt}; this date falls within our 2021--2023 interval, while 2024--2025 is the first complete interval after its introduction. We therefore examine how cross-conference publication rules evolve across the prescribed periods and interpret the later patterns in this broader context, without treating temporal coincidence as evidence of causation.
 
 We measure popularity by publication activity and discover relations between conferences with frequent pattern mining and association rules, using Apriori \cite{apriori} and FP-Growth \cite{fpgrowth}. Each transaction is the set of venues an author published in, and a rule $X \Rightarrow Y$ says that authors of $X$ tend to also publish in $Y$.
 
@@ -49,7 +49,7 @@ The contributions of this paper are:
 \item A reproducible DBLP preprocessing pipeline for 2015--2025 conference papers (2,000,916 papers after cleaning).
 \item A comparison of two transaction models, Author-Based (AB) and Author-Year-Based (AY).
 \item An evaluation of Apriori and FP-Growth, both implemented from scratch and validated against the mlxtend library.
-\item A temporal analysis over four periods that tests whether associations changed in the LLM era.
+\item A temporal analysis that identifies persistent, newly qualifying, and no-longer-detected rules across four periods, followed by an interpretation of the CS areas represented by the venues involved.
 \end{itemize}
 
 This paper answers five research questions:
@@ -58,7 +58,7 @@ This paper answers five research questions:
 \item RQ2: Which conference combinations occur together most often, and which rules have the highest lift?
 \item RQ3: Do the AB and AY models produce different patterns?
 \item RQ4: Is Apriori or FP-Growth more suitable for DBLP?
-\item RQ5: Do associations between conferences shift from 2015--2017 to 2024--2025? Our initial hypothesis was that associations between NLP venues and general ML venues strengthen in the last period.
+\item RQ5: How do conference association rules persist, emerge, disappear, or change across the four periods from 2015 to 2025, and what CS research areas are represented by these changes, particularly around the public introduction of ChatGPT?
 \end{itemize}
 
 Section~II reviews related work, Section~III describes the dataset, Section~IV the methodology, Section~V the experimental setup, Section~VI the results, Section~VII the limitations, and Section~VIII concludes.
@@ -68,10 +68,10 @@ Section~II reviews related work, Section~III describes the dataset, Section~IV t
 
 \textbf{Bibliometrics on DBLP.} Prior work analyzed DBLP from the angle of authors and communities. Kim \cite{kim} studied computer scientists who publish in both conferences and journals and found that conference papers form a distinct channel of scholarly communication. Biryukov and Dong \cite{biryukov} traced researcher careers and compared CS communities by productivity and stability. K\"ull \cite{kull} analyzed about five million DBLP publications for trends in volume, topics and the conference-journal balance. Schommer \cite{schommer} proposed a descriptive framework for typifying social communities in DBLP.
 
-\textbf{Gap.} These studies describe communities through collaboration and productivity measures. To our knowledge they do not mine which conferences share authors through itemsets and rules, nor compare such patterns before and after the rise of LLMs; this paper addresses that gap. We did not run an exhaustive literature search, so earlier association-rule studies on bibliographic data may exist.
+\textbf{Positioning.} These studies provide complementary views of DBLP through author productivity, collaboration, and community structure. We take a transaction-based view in which each author's set of publication venues is treated as an itemset, allowing recurring cross-venue combinations and association rules to be examined directly. The author-year representation adds a time-local view of these combinations, while the temporal analysis compares their prevalence across four periods.
 
 \section{Dataset}
-We use the full DBLP XML release \cite{dblp} and keep only \texttt{inproceedings} records from 2015 to 2025. Each record has a unique key, the venue is implied in the key (\texttt{conf/<venue>/...}), and authors with identical names are separated by a numeric suffix assigned by DBLP. Table~\ref{tab:dataset} summarizes the data.
+We use the full DBLP XML release \cite{dblp} and keep only \texttt{inproceedings} records whose DBLP year field falls between 2015 and 2025. When this field differs from the year in the proceedings cross-reference, we consistently retain the record-level DBLP year. Each record has a unique key, the venue is usually implied in the key (\texttt{conf/<venue>/...}), and authors with identical names may be distinguished by a numeric suffix assigned by DBLP. Table~\ref{tab:dataset} summarizes the data.
 
 \begin{table}[t]
 \caption{Dataset Description}
@@ -114,10 +114,10 @@ Fig.~\ref{fig:pipeline} shows the pipeline.
 \end{figure}
 
 \subsection{Preprocessing}
-We parse the XML in a streaming fashion and keep \texttt{inproceedings} from 2015 to 2025. We then (1) drop records without key, title, year or author (2,255 records), (2) check year validity, (3) remove front matter such as prefaces (1 record), (4) take the venue from the DBLP key, because the \texttt{booktitle} field has many spellings (for example 165 variants for MICCAI), with a few aliases merged (nips to NeurIPS) and \texttt{booktitle} as a fallback when the key has no venue, (5) normalize author names with Unicode NFKC and whitespace cleanup while keeping DBLP disambiguation suffixes, and (6) remove duplicates by key and by content signature of title, year, venue and author set (1,208 records).
+We parse the XML in a streaming fashion and keep \texttt{inproceedings} from 2015 to 2025. We (1) remove records missing a key, title, year, or author (2,255 records); (2) retain valid years in the observation period; and (3) remove front matter such as prefaces (1 record). For venue normalization, we prefer the venue segment of the DBLP key because \texttt{booktitle} has inconsistent spellings (up to 165 variants for MICCAI); \texttt{booktitle} is used as a fallback when the key does not encode a conference venue, and the NIPS alias is merged into NeurIPS. Author strings are normalized with Unicode NFKC and whitespace cleanup, while DBLP disambiguation suffixes are retained to avoid merging homonymous authors. Finally, we remove duplicate keys and apply a secondary content signature based on title, year, venue, and author set (1,208 additional records).
 
 \subsection{Transactional Databases}
-Let $V$ be the set of venues used as items. In the AB model, one transaction per author contains all venues in which that author published during 2015--2025. In the AY model, one transaction exists per (author, year) pair. Only venues with at least 200 papers become items. Single-item transactions stay in the database so that support is computed over all authors, but they cannot produce rules.
+Let $V$ be the set of venues used as items. In the AB model, one transaction per author contains the distinct venues at which that author published during 2015--2025. In the AY model, one transaction represents an (author, year) pair and contains the distinct venues in which that author published in that year. We retain venues with at least 200 papers as items. This reduces the item universe from 4,494 to 1,792 venues while retaining 91.5\% of papers, 92.5\% of paper-author rows, and 93.9\% of authors; we use it as a practical coverage--tractability compromise, not as a measure of venue quality. An AB transaction is created only for an author with at least one retained venue, and an AY transaction only for an author-year pair with at least one retained venue. Thus, support is calculated over the eligible transaction population (1,711,743 AB transactions or 3,826,859 AY transactions), not over all author names in the cleaned corpus. Single-item transactions remain in the database and in the support denominator, although they cannot form multi-venue itemsets or rules.
 
 \subsection{Apriori}
 Apriori generates candidate $k$-itemsets from frequent $(k-1)$-itemsets and prunes any candidate with an infrequent subset. Our implementation counts support with vertical bitsets, with join and prune steps. It was checked against mlxtend on a 50,000-transaction sample at 1\% support, where itemsets and supports were identical.
@@ -132,10 +132,10 @@ With $D$ the set of transactions and $X$, $Y$ sets of venues,
 \mathrm{conf}(X\Rightarrow Y) &= \frac{\mathrm{supp}(X\cup Y)}{\mathrm{supp}(X)},\\
 \mathrm{lift}(X\Rightarrow Y) &= \frac{\mathrm{conf}(X\Rightarrow Y)}{\mathrm{supp}(Y)}.
 \end{align}
-Rules are generated from every frequent itemset with a minimum confidence of 50\%. We rank rules by lift, because a lift above 1 means $X$ and $Y$ occur together more often than expected if they were independent.
+Here, $D$ denotes the relevant transaction database (AB, AY, or a period-specific AY subset). Rules are generated from every frequent itemset with a minimum confidence of 50\%. We rank rules by lift: a value above 1 indicates that $X$ and $Y$ co-occur more frequently than expected under statistical independence.
 
 \subsection{Temporal Analysis}
-We split the AY database into 2015--2017, 2018--2020, 2021--2023 and 2024--2025, mine each with the same relative minimum support, and compare rules across periods: rules that persist, new rules, lost rules, and lift change on shared rules. To test RQ5, we also computed a group-level lift between three manually defined venue groups (NLP: ACL, EMNLP, NAACL, EACL, COLING, LREC, CoNLL; ML: NeurIPS, ICML, ICLR, AISTATS, UAI, COLT, AAAI, IJCAI; CV: CVPR, ICCV, ECCV, WACV, BMVC, ACCV). It is the probability that a transaction contains a venue of both groups divided by the product of the two single-group probabilities.
+We split the AY database into 2015--2017, 2018--2020, 2021--2023, and 2024--2025 and mine each period independently using FP-Growth. A common relative minimum support of 0.05\% and minimum confidence of 50\% are applied in every period. Rules are compared between consecutive periods using their exact antecedent and consequent: a rule is persistent if it qualifies in both periods, newly qualifying if it qualifies only in the later period, and no longer detected if it qualifies only in the earlier period. A rule not detected in a period may still occur below the selected support or confidence thresholds. After mining, representative rules are interpreted by the broad research areas of their venues. The ACM Computing Classification System provides a general vocabulary for these area labels \cite{acmccs}; venue assignments are based on primary scope and are descriptive, not constraints on mining. Interdisciplinary venues may represent more than one area. The 2021--2023 interval includes the public introduction of ChatGPT in November 2022, so it is treated as a transition period rather than a purely pre-LLM baseline.
 
 \section{Experimental Setup}
 Table~\ref{tab:params} lists the parameters needed to reproduce the experiments.
@@ -171,7 +171,7 @@ The raw data was already clean: preprocessing left 2,000,916 of 2,004,380 papers
 NeurIPS ranks first by papers (25,455) and by unique authors (57,800), so the top rank agrees across both measures (Table~\ref{tab:top10}). Eight of the top ten venues appear in both rankings, and the Spearman correlation between the two rankings is 0.987 over all venues and 0.857 over the top 50. The rankings differ for some venues: AAAI is sixth by papers but third by authors, and ICC is tenth by papers but nineteenth by authors. Growth is uneven (Fig.~\ref{fig:trend}): NeurIPS grows 13.2 times from 440 papers in 2015 to 5,823 in 2025 and EMNLP 10.8 times, while all papers grow only 1.24 times. IGARSS and EMBC show zero papers in 2025, most likely because they were not yet indexed in the release we used, so their 2025 counts should be read with care.
 
 \begin{table}[t]
-\caption{Top-10 Venues by Papers and by Unique Authors}
+\caption{Top-10 Venues by Paper Count and Unique Authors}
 \label{tab:top10}
 \centering
 \footnotesize
@@ -201,10 +201,33 @@ Rank & By papers & Papers & By authors & Authors \\
 \end{figure}
 
 \subsection{Transactional Databases (RQ3)}
-The AB database has 1,711,743 transactions with 2.57 venues on average, and the AY database has 3,826,859 transactions with 1.56 venues on average. Single-venue transactions make up 59.0\% of AB and 71.8\% of AY, so 702,200 and 1,080,973 transactions can contribute to rules. AB reflects an author's whole period and therefore holds more co-occurrence (18.1 million venue pairs against 5.1 million in AY, and up to 289 venues in one transaction). AY captures yearly habits but gives productive authors many transactions (2.24 per author on average).
+The AB database contains 1,711,743 eligible-author transactions, while the AY database contains 3,826,859 eligible author-year transactions. Both use the same 1,792-venue item universe. AB has an average of 2.57 venues per transaction, compared with 1.56 for AY. Single-venue transactions account for 59.0\% of AB and 71.8\% of AY; consequently, 702,200 AB and 1,080,973 AY transactions contain at least two venues and can contribute to multi-venue patterns. AB captures an author's venue history across the full period (18.1 million venue pairs and up to 289 venues in one transaction), whereas AY captures same-year activity but gives authors with publications in multiple years more than one transaction (2.24 transactions per represented author on average).
 
 \subsection{Frequent Patterns}
-The number of frequent itemsets falls quickly as minimum support rises (Table~\ref{tab:itemsets}). At 2\% only seven single venues remain; pairs appear at 1\% or lower and triples only at 0.5\% or lower (ICLR, ICML and NeurIPS). The most frequent pair is ICML with NeurIPS (1.08\% of authors), followed by ICLR with NeurIPS, AAAI with NeurIPS, CVPR with NeurIPS, CVPR with ICCV, and ACL with EMNLP. These pairs mostly connect venues of the same topic (machine learning, vision, language); ICRA with IROS is a robotics example.
+The number of frequent itemsets falls quickly as minimum support rises (Table~\ref{tab:itemsets}). At 2\% only seven single venues remain; pairs appear at 1\% or lower and triples only at 0.5\% or lower (ICLR, ICML, and NeurIPS). The ten most frequent singleton itemsets correspond to the leading venues by unique authors in Table~\ref{tab:top10}; Table~\ref{tab:pairs} lists the ten most frequent multi-venue itemsets at 0.1\% support. The leading pair is ICML--NeurIPS, present in 18,502 eligible-author transactions (1.081\%); other frequent pairs connect venues in machine learning, computer vision, language, and robotics. The repeated appearance of venues from related areas suggests that the mining captures recognizable publication communities, while the pair frequencies measure co-publication rather than venue quality.
+
+\begin{table}[t]
+\caption{Top-10 Multi-Venue Itemsets (AB, 0.1\% Support)}
+\label{tab:pairs}
+\centering
+\footnotesize
+\begin{tabular}{lrr}
+\toprule
+Venue pair & Transactions & Support (\%) \\
+\midrule
+ICML + NeurIPS & 18,502 & 1.081 \\
+ICLR + NeurIPS & 17,910 & 1.046 \\
+AAAI + NeurIPS & 15,971 & 0.933 \\
+CVPR + NeurIPS & 15,634 & 0.913 \\
+CVPR + ICCV & 15,439 & 0.902 \\
+ACL + EMNLP & 14,558 & 0.850 \\
+CVPR + ECCV & 13,752 & 0.803 \\
+ICLR + ICML & 12,991 & 0.759 \\
+AAAI + CVPR & 12,166 & 0.711 \\
+ICRA + IROS & 11,858 & 0.693 \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 \begin{table}[t]
 \caption{Frequent Itemsets by Minimum Support (AB)}
@@ -225,27 +248,33 @@ Total & 1,696 & 100 & 33 & 7 \\
 \end{table}
 
 \subsection{Association Rules (RQ2)}
-At 0.1\% support and 50\% confidence, the AB database yields 1,614 rules with lift between 14.9 and 162 (median 33.6). All lifts are far above 1, so these venues rarely co-occur by chance. The strongest rule, ECCV, MM and NeurIPS implying AAAI, CVPR and ICCV (lift 162, confidence 0.61), describes a cluster of authors working across vision and machine learning (Table~\ref{tab:rules}). Among single-venue rules the highest lifts are ECOC $\Rightarrow$ OFC (75.3, optical communications), ASRU $\Rightarrow$ INTERSPEECH (69.7, speech), and EACL $\Rightarrow$ ACL (34.4, language).
+At 0.1\% support and 50\% confidence, the AB database yields 1,614 rules with lift values from 14.9 to 162 (median 33.6). Values above 1 indicate positive association relative to the independence baseline; they do not imply that the venues are rare or unlikely to co-occur. The highest-lift rule links ECCV, MM, and NeurIPS to AAAI, CVPR, and ICCV (lift 162, confidence 0.613), indicating a group of authors publishing across several vision and machine-learning venues (Table~\ref{tab:rules}). For single-venue-to-single-venue rules, the highest lifts are ECOC $\Rightarrow$ OFC (75.3, optical communications), ASRU $\Rightarrow$ INTERSPEECH (69.7, speech), and EACL $\Rightarrow$ ACL (34.4, language).
 
 High support does not mean high lift (Fig.~\ref{fig:lift}). ICML $\Rightarrow$ NeurIPS has the highest support (1.08\%) but a lift of only 17.2, while ECOC $\Rightarrow$ OFC has a support of 0.26\% and a lift of 75.3. The Spearman correlation between rule support and lift is $-0.195$, and between consequent support and lift it is $-0.913$, so rare consequents tend to give large lift. Support measures how many authors follow a pattern, confidence the chance that an author of $X$ also publishes in $Y$, and lift how much stronger that is than chance.
 
-\begin{table}[t]
-\caption{Top Rules by Lift (AB, 0.1\% Support, 50\% Confidence)}
+\begin{table*}[t]
+\caption{Top-10 Association Rules by Lift (AB, 0.1\% Minimum Support, 50\% Minimum Confidence)}
 \label{tab:rules}
 \centering
-\footnotesize
-\begin{tabular}{p{3.9cm}rrr}
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{p{3.15cm}p{3.15cm}rrr}
 \toprule
-Rule & Supp. & Conf. & Lift \\
+Antecedent & Consequent & Support (\%) & Confidence & Lift \\
 \midrule
-ECCV, MM, NeurIPS $\Rightarrow$ AAAI, CVPR, ICCV & 0.0011 & 0.613 & 162.0 \\
-CVPR, ECCV, ICML $\Rightarrow$ ICCV, ICLR, NeurIPS & 0.0011 & 0.502 & 160.9 \\
-CVPR, ICCV, ICML, NeurIPS $\Rightarrow$ ECCV, ICLR & 0.0011 & 0.514 & 149.0 \\
-ECOC $\Rightarrow$ OFC & 0.0026 & 0.665 & 75.3 \\
-ASRU $\Rightarrow$ INTERSPEECH & 0.0011 & 0.727 & 69.7 \\
+ECCV, MM, NeurIPS & AAAI, CVPR, ICCV & 0.1067 & 0.6129 & 162.0 \\
+CVPR, ECCV, ICML & ICCV, ICLR, NeurIPS & 0.1080 & 0.5024 & 160.9 \\
+CVPR, ICCV, ICML, NeurIPS & ECCV, ICLR & 0.1080 & 0.5138 & 149.0 \\
+CVPR, ECCV, ICML, NeurIPS & ICCV, ICLR & 0.1080 & 0.5913 & 147.1 \\
+ECCV, ICCV, ICML & CVPR, ICLR, NeurIPS & 0.1080 & 0.6139 & 146.2 \\
+ICLR, NAACL & ACL, EMNLP, NeurIPS & 0.1121 & 0.5018 & 142.7 \\
+CVPR, ICCV, MM, NeurIPS & AAAI, ECCV & 0.1067 & 0.5753 & 138.8 \\
+EMNLP, NAACL, NeurIPS & ACL, ICLR & 0.1121 & 0.5463 & 137.1 \\
+CVPR, ECCV, MM, NeurIPS & AAAI, ICCV & 0.1067 & 0.6850 & 136.8 \\
+ECCV, ICCV, ICML & AAAI, CVPR, NeurIPS & 0.1012 & 0.5754 & 135.0 \\
 \bottomrule
 \end{tabular}
-\end{table}
+\end{table*}
 
 \begin{figure}[t]
 \centering
@@ -255,7 +284,7 @@ ASRU $\Rightarrow$ INTERSPEECH & 0.0011 & 0.727 & 69.7 \\
 \end{figure}
 
 \subsection{Algorithm Comparison (RQ4)}
-Apriori and FP-Growth return identical frequent itemsets at every minimum support, and both match mlxtend on a sample (Table~\ref{tab:algo}). Lowering the support increases itemsets and rules sharply: only 7 rules remain at 0.5\% against 1,614 at 0.1\%. Execution time depends on implementation, and our Apriori uses bitset counting. Under that implementation FP-Growth is faster at 0.1\% (11.0 s against 17.7 s), where itemsets are many, while Apriori is faster at higher support (0.06 to 0.56 s against 0.53 to 2.15 s) because FP-Growth pays for building its tree (Fig.~\ref{fig:runtime}). For low support on a large dataset such as DBLP, FP-Growth is the more suitable choice; since the outputs are identical, this is a question of cost only.
+Apriori and FP-Growth return identical frequent itemsets at every tested minimum support, and both match mlxtend on a 50,000-transaction validation sample (Table~\ref{tab:algo}). Lowering support increases the number of itemsets and rules sharply: 1,614 rules are produced at 0.1\% support, compared with 7 at 0.5\%. Runtime depends on the implementation: our bitset-based Apriori is slower at 0.1\% (17.73 s versus 10.96 s), where many itemsets are generated, while it is faster at higher thresholds (0.06--0.56 s versus 0.53--2.15 s) (Fig.~\ref{fig:runtime}). Thus, neither algorithm is uniformly faster: FP-Growth is advantageous at the lowest tested support, whereas Apriori is more efficient at the higher thresholds in this implementation.
 
 \begin{table}[t]
 \caption{Apriori versus FP-Growth (AB)}
@@ -282,9 +311,11 @@ Min. supp. & Itemsets & Rules & Apriori (s) & FP-Growth (s) \\
 \end{figure}
 
 \subsection{Temporal Analysis (RQ5)}
-Multi-venue patterns increase over time (Table~\ref{tab:temporal}). Pairs grow from 52 to 305, triples from 2 to 227, and itemsets with four or more venues appear only in 2024--2025 (97). Rules grow from 2 to 324. In 2015--2017 the top pairs come from communications and robotics (GLOBECOM with ICC, AMCC with CDC, ICRA with IROS); in 2021--2025 they come from AI (ICML with NeurIPS, ICLR with NeurIPS, ACL with EMNLP, CVPR with NeurIPS). The new rules in 2024--2025 include links between NLP and ML venues, for example AAAI, EMNLP and ICLR implying ACL and NeurIPS (lift 86.1).
+Multi-venue patterns become more numerous in the later periods (Table~\ref{tab:temporal}). Frequent pairs increase from 52 in 2015--2017 to 305 in 2024--2025, triples from 2 to 227, and 97 itemsets with four or more venues appear in the final period. The number of association rules rises from 2 to 324. We compare the rule sets between consecutive periods to distinguish persistent, newly qualifying, and no-longer-detected rules (Table~\ref{tab:ruletrans}). No rule persists from 2015--2017 to 2018--2020; three persist from 2018--2020 to 2021--2023; and 19 persist from 2021--2023 to 2024--2025. In the last transition, 305 rules newly qualify and 7 are no longer detected. No rule is present in all four periods.
 
-The hypothesis that NLP--ML association strengthens is only partly supported. The group-level lift between NLP and ML falls from 5.35 to 2.63, and between CV and ML from 5.05 to 2.89, while NLP and CV rises slightly from 1.41 to 1.77 (Fig.~\ref{fig:grouplift}). A likely reason is that the ML group grew very quickly, so more joint publication is less surprising relative to chance. The two readings are not in conflict: co-publication increased in absolute terms, but the association relative to independence decreased.
+The venue combinations in the highest-lift rules span several areas of computer science rather than a single predefined grouping. Table~\ref{tab:periodrules} gives one leading example from each period. The 2015--2017 rule ECOC $\Rightarrow$ OFC represents optical communications. In 2018--2020, AAAI and ACL $\Rightarrow$ EMNLP links general artificial intelligence and natural language processing. The leading 2021--2023 rule, SLT $\Rightarrow$ INTERSPEECH, represents speech and language technology. In 2024--2025, AAAI, EMNLP, and ICLR $\Rightarrow$ ACL and NeurIPS spans AI, NLP, and machine learning. Another high-lift rule in the final period links ICCV, ICLR, and ICML to CVPR and NeurIPS (lift 60.2), combining computer vision and machine learning.
+
+The changes are not exclusively associated with AI-related venues. For example, ICC and WCNC $\Rightarrow$ GLOBECOM is detected in both 2018--2020 and 2024--2025 (lifts 45.6 and 48.3), but not in the intervening period. This reappearance shows that some venue associations can recur after temporarily falling below the mining thresholds. Overall, the later rules represent a wider range of cross-venue combinations, including communications, speech, language, AI/ML, and vision. These field labels describe the domains represented by the venues; they do not indicate that the papers themselves use LLMs.
 
 \begin{table}[t]
 \caption{Itemsets and Rules per Period (AY, 0.05\% Support)}
@@ -305,17 +336,44 @@ Rules & 2 & 5 & 26 & 324 \\
 \end{tabular}
 \end{table}
 
-\begin{figure}[t]
+\begin{table}[t]
+\caption{Rule Changes Between Consecutive Periods (AY, 0.05\% Support)}
+\label{tab:ruletrans}
 \centering
-\includegraphics[width=0.85\columnwidth]{fig_group_lift.png}
-\caption{Group-level lift between venue groups in each period.}
-\label{fig:grouplift}
-\end{figure}
+\footnotesize
+\begin{tabular}{lrrrr}
+\toprule
+Transition & Persistent & New & Lost & Jaccard \\
+\midrule
+15--17 $\rightarrow$ 18--20 & 0 & 5 & 2 & 0.000 \\
+18--20 $\rightarrow$ 21--23 & 3 & 23 & 2 & 0.107 \\
+21--23 $\rightarrow$ 24--25 & 19 & 305 & 7 & 0.057 \\
+\bottomrule
+\end{tabular}
+\end{table}
 
-Two cautions apply. First, at this threshold the early periods have very few rules (2 and 5), so no rule appears in all four periods and rule overlap between periods is weak (Jaccard 0.11 or less); the counts of itemsets and the group-level lift are more robust than rule overlap. A lower temporal support should be tried before drawing conclusions about individual rules. Second, the last period covers only two years, and some venues of 2025 are not yet indexed. These are associations and do not show that LLMs caused the change.
+\begin{table*}[t]
+\caption{Representative Highest-Lift Rule in Each Period and Its Main Research Area}
+\label{tab:periodrules}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{p{1.35cm}p{6.1cm}rrrp{4.3cm}}
+\toprule
+Period & Rule & Support (\%) & Confidence & Lift & Main area represented \\
+\midrule
+2015--2017 & ECOC $\Rightarrow$ OFC & 0.20 & 0.516 & 55.4 & Optical communications \\
+2018--2020 & AAAI, ACL $\Rightarrow$ EMNLP & 0.06 & 0.582 & 67.5 & Artificial intelligence and NLP \\
+2021--2023 & SLT $\Rightarrow$ INTERSPEECH & 0.05 & 0.502 & 52.8 & Speech and language technology \\
+2024--2025 & AAAI, EMNLP, ICLR $\Rightarrow$ ACL, NeurIPS & 0.06 & 0.520 & 86.1 & AI, NLP, and machine learning \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+The rule comparisons are threshold-dependent: a rule classified as newly qualifying may have occurred previously but remained below the minimum support or confidence. The first two periods also yield few rules, limiting rule-level comparisons. Finally, 2024--2025 covers only two years, and some 2025 records may not yet be indexed. ChatGPT's public introduction on November 30, 2022 falls within 2021--2023; therefore, the period split does not provide a clean pre/post causal comparison. The observed venue associations are descriptive and cannot establish that LLMs caused the temporal changes.
 
 \subsection{Author-Based versus Author-Year-Based (RQ3)}
-At the same minimum support, AB yields 1,696 itemsets and 1,614 rules, while AY yields 380 itemsets and only 3 rules (Table~\ref{tab:abay}). The top venue pairs are similar (18 of the 20 highest-support pairs coincide), but rule overlap is small (Jaccard 0.002; three shared rules with the same lift order). Thus the strongest pairs are consistent across models, but AB captures long-run, multi-venue patterns with very high lift, while AY reflects yearly habits and is more conservative (top lift 25.4).
+At a 0.1\% relative minimum support, AB yields 1,696 itemsets and 1,614 rules, while AY yields 380 itemsets and 3 rules (Table~\ref{tab:abay}). The top venue pairs are similar (18 of the 20 highest-support pairs coincide), but rule overlap is small (Jaccard 0.002; three shared rules with the same lift order). The difference follows from the transaction units: AB aggregates each author's venues over the full period, while AY requires venues to occur within the same author-year transaction. The two models therefore describe complementary long-term and year-specific patterns rather than competing estimates of the same quantity.
 
 \begin{table}[t]
 \caption{Author-Based versus Author-Year-Based (Same Minimum Support)}
@@ -327,6 +385,9 @@ At the same minimum support, AB yields 1,696 itemsets and 1,614 rules, while AY 
 Measure & AB & AY \\
 \midrule
 Transactions & 1,711,743 & 3,826,859 \\
+Unique venue items & 1,792 & 1,792 \\
+Average items per transaction & 2.571 & 1.563 \\
+Maximum items per transaction & 289 & 75 \\
 Frequent itemsets & 1,696 & 380 \\
 Itemsets with 2+ venues & 1,073 & 53 \\
 Rules & 1,614 & 3 \\
@@ -336,20 +397,10 @@ Top rule lift & 162.0 & 25.4 \\
 \end{table}
 
 \section{Limitations and Threats to Validity}
-\begin{itemize}
-\item Popularity is publication activity, not quality or citations.
-\item Author disambiguation relies on DBLP; merged or split identities remain possible, and person-record aliases are not used.
-\item Some 2025 venues (IGARSS, EMBC) show zero papers, probably because they are not yet indexed, which biases 2025 counts and the last period.
-\item Only venues with at least 200 papers are items (1,792 of 4,494, covering 92.5\% of paper-author rows), and single-venue transactions cannot produce rules.
-\item AB merges the whole period, hiding yearly patterns; AY gives productive authors many transactions.
-\item At the temporal support of 0.05\%, early periods have only 2 and 5 rules, so rule-level comparison across periods is weak.
-\item The venue groups (NLP, ML, CV) are defined by hand, and the 2024--2025 period has only two years.
-\item Associations are not causal; the shift between periods does not prove that LLMs caused it.
-\item Colab memory limits low minimum support, and timing results depend on our implementations.
-\end{itemize}
+The results should be interpreted within several limits. Popularity measures publication activity rather than research quality or citation impact, and DBLP author disambiguation and metadata-based deduplication may still leave merged, split, or duplicate records. The 200-paper item threshold retains 91.5\% of papers but underrepresents smaller venues. Authors and author-year pairs with no retained venue are omitted, so support is conditional on the eligible transaction populations. AB and AY have different observational units. Temporal rule changes are sensitive to the selected support and confidence thresholds; a rule not detected in a period is not necessarily absent from the underlying publication activity. The early periods yield few rules, and 2024--2025 covers only two years with potentially incomplete 2025 indexing. Venue-to-field labels are interpretive because conference scopes can overlap. Finally, the 2021--2023 interval straddles the public introduction of ChatGPT, and the observational associations do not establish that LLMs caused the changes.
 
 \section{Conclusion}
-NeurIPS is the most popular venue by both papers (25,455) and unique authors (57,800). It also forms the most frequent pair, ICML with NeurIPS (1.08\% of authors), but the strongest associations by lift appear between smaller, specialized venues such as ECOC and OFC (75.3) and between sets of vision and ML venues (up to 162), so popularity does not imply the strongest association. The AB model finds far more patterns than the AY model (1,614 against 3 rules at the same support), although both agree on the leading pairs. Apriori and FP-Growth give identical results, with FP-Growth faster at low support, which makes it the better choice for DBLP. Over time, multi-venue patterns grow from 2 to 324 rules and the center of association shifts from communications and robotics to AI, but the hypothesis of stronger NLP--ML association is only partly supported, since group-level lift falls while rules linking NLP and ML venues appear. Future work includes citation-weighted associations, journals, analysis by subfield, lower temporal support with complete 2025 data, and sequential temporal rules.
+NeurIPS ranks first by both paper count (25,455) and unique authors (57,800), and ICML--NeurIPS is the most frequent venue pair. The highest lifts, however, occur in more specialized associations, confirming that publication popularity does not imply the strongest association. AB captures long-term author venue histories, while AY captures same-year behavior. Apriori and FP-Growth return identical itemsets, although their runtime depends on the support threshold. The temporal analysis shows substantial turnover in qualifying rules: from 2021--2023 to 2024--2025, 305 rules newly qualify, 19 persist, and 7 are no longer detected. Representative rules span communications, speech and language technology, AI, NLP, machine learning, and computer vision. These changes coincide with the period following ChatGPT's public introduction, but the study cannot attribute them to LLMs. Future work includes lower-support robustness checks, citation-weighted associations, journal publications, paper-level topic analysis, more complete 2025 data, and sequential temporal rules.
 
 \section*{Acknowledgment}
 The authors thank the DBLP team at Schloss Dagstuhl and the University of Trier for providing the data.
@@ -362,6 +413,8 @@ The authors thank the DBLP team at Schloss Dagstuhl and the University of Trier 
 \bibitem{biryukov} M. Biryukov and C. Dong, ``Analysis of computer science communities based on DBLP,'' arXiv:1012.5396, 2010.
 \bibitem{kull} L. K\"ull, ``Analyzing the state of computer science research with the DBLP Discovery Dataset,'' arXiv:2212.00629, 2022.
 \bibitem{schommer} C. Schommer, ``A simple framework to typify social bibliographic communities,'' arXiv:0809.2818, 2008.
+\bibitem{chatgpt} OpenAI, ``Introducing ChatGPT,'' Nov. 30, 2022. [Online]. Available: https://openai.com/index/chatgpt/.
+\bibitem{acmccs} Association for Computing Machinery, ``How to classify works using ACM's Computing Classification System,'' 2015. [Online]. Available: https://www.acm.org/binaries/content/assets/publications/article-templates/ccs-howto-v6-12jan2015.pdf.
 \end{thebibliography}
 
 \end{document}
