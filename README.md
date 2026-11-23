@@ -1,6 +1,6 @@
-# Mining Cross-Conference Publication Associations in Computer Science (DBLP 2015–2025)
+# Association Mining of Cross-Conference Publication Patterns in DBLP: A Temporal Analysis (2015–2025)
 
-This project performs frequent pattern mining and association rule analysis on DBLP conference publication records to investigate whether the rise of LLM-related research has reshaped the community structure of computer science conferences. The analysis covers the period 2015–2025 and uses two transactional representations, author-based and author-year-based to uncover cross-conference publication associations among researchers.
+This project performs frequent pattern mining and association rule analysis on DBLP conference publication records to discover cross-conference co-publication patterns among researchers. The analysis covers four temporal periods from 2015 to 2025 and uses two transactional representations — author-based and author-year-based — to compare frequent itemsets and association rules, and to track how those patterns shift across time.
 
 ## Data
 
@@ -62,7 +62,7 @@ A step-by-step guide to setting up the development/analysis environment:
 
 ## Publications
 
-- **[Working Paper]** *Mining Cross-Conference Publication Associations in Computer Science (DBLP 2015–2025): Has the LLM Era Reshaped Community Structure?* - Data Mining course project.
+- **[Paper]** *Association Mining of Cross-Conference Publication Patterns in DBLP: A Temporal Analysis (2015–2025)* — Data Mining course project.
 
 ## Contributing
 
